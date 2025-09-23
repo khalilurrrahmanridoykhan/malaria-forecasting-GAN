@@ -500,19 +500,22 @@ def predict_rate(artifacts: Dict[str, object], input_data: PredictionInput) -> f
     # Fetch last 12 months data for the upazila
     upazila_data = climate_df[climate_df["UpazilaID"] == input_data.upazila_id].copy()
     if upazila_data.empty:
-        raise ValueError("No climate data for this upazila")
-    upazila_data = upazila_data.sort_values(["Year", "Month"])
+        raise ValueError(f"No climate data for upazila {input_data.upazila_id}")
+    upazila_data = upazila_data.sort_values(["Year", "Month"]).reset_index(drop=True)
     # Find the index of the given month
     target_ym = input_data.year * 12 + input_data.month
     idx = upazila_data[upazila_data["ym"] == target_ym].index
     if idx.empty:
-        raise ValueError("No data for the specified year and month")
+        available_dates = upazila_data["ym"].tolist()
+        raise ValueError(f"No data for {input_data.year}-{input_data.month:02d} (target_ym={target_ym}). Available ym: {sorted(available_dates)[:5]}...")
     idx = idx[0]
     # Take the 12 months before
     start_idx = max(0, idx - 12)
     last_12 = upazila_data.iloc[start_idx:idx]
     if len(last_12) < 12:
-        raise ValueError("Not enough historical data (need 12 months)")
+        available_count = len(last_12)
+        date_range = f"{last_12.iloc[0]['Year']}-{last_12.iloc[0]['Month']:02d} to {last_12.iloc[-1]['Year']}-{last_12.iloc[-1]['Month']:02d}" if not last_12.empty else "none"
+        raise ValueError(f"Not enough historical data (need 12 months, have {available_count}). Available range: {date_range}")
     # Prepare df
     df = last_12.copy()
     df["month"] = df["Month"]
@@ -610,6 +613,9 @@ def load_climate_data():
     }
     df["Month"] = df["Month"].map(month_map)
     # Columns are already correctly named in the Excel file
+    # Rename upazila_id to UpazilaID for consistency
+    if "upazila_id" in df.columns:
+        df = df.rename(columns={"upazila_id": "UpazilaID"})
     df["ym"] = df["Year"] * 12 + df["Month"]
     df = df.sort_values(["UpazilaID", "Year", "Month"]).reset_index(drop=True)
     return df
@@ -701,6 +707,11 @@ def get_predictions(
         raise HTTPException(status_code=404, detail="Artifacts not loaded")
 
     df = artifacts["predictions"]
+
+    # If no stored predictions available, return empty response
+    if df.empty:
+        return PredictionsResponse(total=0, count=0, items=[])
+
     filtered = df
     if upazila_id is not None:
         filtered = filtered[filtered["upazila_id"] == upazila_id]
@@ -745,9 +756,7 @@ def predict_all(model_id: str, input_data: PredictAllInput):
             pred_rate, lower, upper = predict_rate(artifacts, pred_input)
             results.append({
                 "upazila_id": uid,
-                "predicted_rate": pred_rate,
-                "lower_bound": lower,
-                "upper_bound": upper
+                "predicted_rate": pred_rate
             })
         except Exception as e:
             results.append({
@@ -770,9 +779,7 @@ def predict_single(model_id: str, input_data: PredictionInput):
         pred_rate, lower, upper = predict_rate(artifacts, input_data)
         return {
             "upazila_id": input_data.upazila_id,
-            "predicted_rate": pred_rate,
-            "lower_bound": lower,
-            "upper_bound": upper
+            "predicted_rate": pred_rate
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
