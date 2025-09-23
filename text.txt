@@ -1,2 +1,35 @@
 source .venv/bin/activate
 .venv/bin/pip install Pillow
+
+/Users/khalilur/Documents/ML/output/malaria_e2e/Target_MIXED_over_Pop
+/Users/khalilur/Documents/ML/output/malaria_e2e/Target_PF_over_Pop
+/Users/khalilur/Documents/ML/output/malaria_e2e/Target_PV_over_Pop
+/Users/khalilur/Documents/ML/output/malaria_e2e
+/Users/khalilur/Documents/ML/ClimatePredictionFile2023_2032_WithIDs.xlsx
+
+source ../.venv/bin/activate && uvicorn main:app --reload
+source /Users/khalilur/Documents/ML/.venv/bin/activate && cd /Users/khalilur/Documents/ML/fast_api_app && uvicorn main:app --reload
+
+
+
+curl http://localhost:8000/models/target_pv
+curl -X POST "http://localhost:8000/models/target_pv/predict" \
+-H "Content-Type: application/json" \
+-d '{
+  "upazila_id": 121,
+  "data": [
+    {"Average_temperature": 25.0, "Total_rainfall": 100.0, "Relative_humidity": 70.0, "Average_NDVI": 0.3, "Average_NDWI": -0.2, "month": 1, "year": 2024},
+    {"Average_temperature": 26.0, "Total_rainfall": 120.0, "Relative_humidity": 75.0, "Average_NDVI": 0.4, "Average_NDWI": -0.1, "month": 2, "year": 2024},
+    {"Average_temperature": 27.0, "Total_rainfall": 150.0, "Relative_humidity": 80.0, "Average_NDVI": 0.5, "Average_NDWI": 0.0, "month": 3, "year": 2024},
+    {"Average_temperature": 28.0, "Total_rainfall": 200.0, "Relative_humidity": 85.0, "Average_NDVI": 0.6, "Average_NDWI": 0.1, "month": 4, "year": 2024},
+    {"Average_temperature": 29.0, "Total_rainfall": 250.0, "Relative_humidity": 90.0, "Average_NDVI": 0.7, "Average_NDWI": 0.2, "month": 5, "year": 2024},
+    {"Average_temperature": 30.0, "Total_rainfall": 300.0, "Relative_humidity": 95.0, "Average_NDVI": 0.8, "Average_NDWI": 0.3, "month": 6, "year": 2024},
+    {"Average_temperature": 31.0, "Total_rainfall": 350.0, "Relative_humidity": 90.0, "Average_NDVI": 0.7, "Average_NDWI": 0.2, "month": 7, "year": 2024},
+    {"Average_temperature": 30.0, "Total_rainfall": 300.0, "Relative_humidity": 85.0, "Average_NDVI": 0.6, "Average_NDWI": 0.1, "month": 8, "year": 2024},
+    {"Average_temperature": 29.0, "Total_rainfall": 200.0, "Relative_humidity": 80.0, "Average_NDVI": 0.5, "Average_NDWI": 0.0, "month": 9, "year": 2024},
+    {"Average_temperature": 28.0, "Total_rainfall": 150.0, "Relative_humidity": 75.0, "Average_NDVI": 0.4, "Average_NDWI": -0.1, "month": 10, "year": 2024},
+    {"Average_temperature": 27.0, "Total_rainfall": 120.0, "Relative_humidity": 70.0, "Average_NDVI": 0.3, "Average_NDWI": -0.2, "month": 11, "year": 2024},
+    {"Average_temperature": 26.0, "Total_rainfall": 100.0, "Relative_humidity": 65.0, "Average_NDVI": 0.2, "Average_NDWI": -0.3, "month": 12, "year": 2024}
+  ]
+}'
+

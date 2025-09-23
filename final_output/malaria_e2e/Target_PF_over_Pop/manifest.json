@@ -1,0 +1,16 @@
+{
+  "metrics_test": {
+    "SMAPE": 51.917518615722656,
+    "MSE": 8.02928834531258e-09,
+    "RMSE": 8.960629634859696e-05,
+    "R2": 0.9968490600585938,
+    "Coverage90": 0.7586836810335699
+  },
+  "config": {
+    "seq_len": 12,
+    "latent_dim": 12,
+    "noise_dim": 16,
+    "lstm_units": 128
+  },
+  "notes": "Upazila-wise split; last 6M TEST, prev 6M VAL; indicators\u2192CondVAE\u2192PCs + lagged indicators + seasonality."
+}
